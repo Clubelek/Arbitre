@@ -10,12 +10,16 @@ from rocketcomm import RocketComm
 # TOOLS #
 #########
 
+# Définitions des émoticônes
+mot_Benoipocalypse = ":benoipocalypse:"
+mot_DontFeedTheTroll = ":feedthetroll"
+
 
 def _is_correct_image(url):
     return True
 
 
-def _is_benoipocalypse(date, benoipocalypse_start, benoipocalypse_stop):
+def _is_benoipocalypse(date, benoipocalypse_start): #la Benoipocalypse dure toute la journée suivant l'annonce, de minuit à minuit
     return False
 
 
@@ -43,14 +47,13 @@ def _compute_score(rocket, settings, scores, since=None):
     msgs = rocket.get_raw_msgs(self, settings, since)
 
     benoipocalypse_starts = rocket.check_special_string(settings, since, settings["Benoipocalypse_start"])
-    benoipocalypse_stops = rocket.check_special_string(settings, since, settings["Benoipocalypse_stop"])
     troll_starts = rocket.check_special_string(settings, since, settings["DontFeedTheTroll"])
 
     normal_mode = {}
 
     for msg in msgs:
         # BENOIT
-        if _is_benoipocalypse(msg["date"], benoipocalypse_starts, benoipocalypse_stops):
+        if _is_benoipocalypse(msg["date"], benoipocalypse_starts):
             removed_points = _check_benoipocalypse(msg["msg"], settings["Benoipocalypse_word"])
             # more processing TODO
 
