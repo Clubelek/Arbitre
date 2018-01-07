@@ -4,98 +4,70 @@ from datetime import datetime as dt
 from pprint import pprint
 import secrets
 
-import rocketcomm
+from rocketcomm import RocketComm
+
+#########
+# TOOLS #
+#########
 
 
+def _is_correct_image(url):
+    return True
 
 
-
-####################
-# SCORE MANAGEMENT #
-####################
-
-def _add_score(scores, name, date):
-    time = [date.hour, date.minute]
-    rekt = None
-
-    # Create if new player
-    if name not in scores:
-        scores[name] = {}
-        scores[name]['dates'] = []
-        scores[name]['time'] = []
-        scores[name]['score'] = 0
-
-    # Append date (to get the last one)
-    scores[name]['dates'].append(date)
-
-    # Check time in all last times
-    for _name in scores:
-        for t in scores[_name]['time']:
-            if t == time:  # We got a match !
-                rekt = _name  # sorry :(
-                scores[_name]['score'] -= 1
-                scores[name]['score'] -= 1
-                scores[_name]['time'].remove(t)
-
-    # Someone get rekt
-    if rekt is None:
-        scores[name]['time'].append(time)
-        scores[name]['score'] += 1
-
-    return scores, rekt;
+def _is_benoipocalypse(date, benoipocalypse_start, benoipocalypse_stop):
+    return False
 
 
-def _add_scores(config, msgs, scores=None, imgSet=None, rektSet=None):
-    if scores is None:
-        scores = {}
-    if imgSet is None:
-        imgSet = []
-    if rektSet is None:
-        rektSet = []
+def _is_troll(date, troll_start):
+    return False
+
+
+def _check_benoipocalypse(msg, benoit):
+    return 0
+
+
+def _add_image(normal_mode, name, date):
+    return normal_mode
+
+
+def _compute_normal_mode(scores, normal_mode):
+    return scores
+
+#########
+# SCORE #
+#########
+
+
+def _compute_score(rocket, settings, scores, since=None):
+    msgs = rocket.get_raw_msgs(self, settings, since)
+
+    benoipocalypse_starts = rocket.check_special_string(settings, since, settings["Benoipocalypse_start"])
+    benoipocalypse_stops = rocket.check_special_string(settings, since, settings["Benoipocalypse_stop"])
+    troll_starts = rocket.check_special_string(settings, since, settings["DontFeedTheTroll"])
+
+    normal_mode = {}
 
     for msg in msgs:
-        # if this msg contains a picture
-        if ("attachments" in msg) and (msg["attachments"] is not None) and (len(msg["attachments"]) > 0) and (
-                "image_url" in msg["attachments"][0]):
-            url = msg["attachments"][0]["image_url"]
-            imgSet.append(url)
+        # BENOIT
+        if _is_benoipocalypse(msg["date"], benoipocalypse_starts, benoipocalypse_stops):
+            removed_points = _check_benoipocalypse(msg["msg"], settings["Benoipocalypse_word"])
+            # more processing TODO
 
-            date = dt.strptime(msg["ts"], config["parseDate"])
-            name = msg["u"]["username"]
-            scores, rekt = _add_score(scores, name, date)
-            if rekt is not None:
-                rektSet.append([rekt, name, date])
+        # Someone posted an image !
+        if msg["url"] != "":
+            if _is_correct_image(url): # That's benoit_jeune image
+                if _is_troll(msg["date"], troll_starts): # that's OK, we just feed the troll
+                    added_points = 1
+                    # more processing TODO
+                else:
+                    normal_mode = _add_image(normal_mode, msg["name"], msg["date"])  # For now we just stack the valids messages
 
-    return scores, imgSet, rektSet;
+            else:  # Uh oh, wrong image, why not try #memes ?
+                removed_points = 1
+                # more processing TODO
 
+    scores = _compute_normal_mode(scores, normal_mode)
 
-def _get_last_date(scores):
-    ld = None
+    return scores
 
-    for name in scores:
-        for d in scores[name]['dates']:
-            if (ld is None) or (d > ld):
-                ld = d
-
-    return ld
-
-
-#############################
-####### MAIN FUNCTION #######
-#############################
-
-def manage(sumUp=False, toChat=True):
-    config = ids.config
-    rocket = _connect(config)
-
-    if sumUp:
-        msgs = _retrieve_msgs(rocket, config, True)
-        scores, imgSet, rektSet = _add_scores(config, msgs)
-    else:
-        scores, imgSet, rektSet = _retrieve_scores()
-        date = _get_last_date(scores)
-        msgs = _retrieve_msgs(rocket, config, since=date)
-        scores, imgSet, rektSet = _add_scores(config, msgs, scores, imgSet, rektSet)
-
-    _print_scores(rocket, config, scores, imgSet, rektSet, toChat)
-    _save_scores(scores, imgSet, rektSet)
