@@ -1,9 +1,11 @@
 from datetime import datetime as dt
 from pprint import pprint
 
-# import arbitre
+import arbitre
 from rocketcomm import RocketComm
 import ids
+
+print(arbitre._check_benoipocalypse("heyBENOIT yo ! BENOIT :lol_: coucouc, ça va ?", "BENOIT"))
 
 config = ids.config
 settings = ids.settings
@@ -11,7 +13,7 @@ settings = ids.settings
 rc = RocketComm(config)
 rc.login()
 
-pprint(rc.get_raw_msgs(settings, dt.strptime('2018-01-01', "%Y-%m-%d")))
+#  pprint(rc.get_raw_msgs(settings, dt.strptime('2018-01-01', "%Y-%m-%d")))
 
 rc.logout()
 
