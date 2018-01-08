@@ -10,10 +10,6 @@ from rocketcomm import RocketComm
 # TOOLS #
 #########
 
-# Définitions des émoticônes
-mot_Benoipocalypse = ":benoipocalypse:"
-mot_DontFeedTheTroll = ":feedthetroll"
-
 
 def _is_correct_image(url):
     return True
