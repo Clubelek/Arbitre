@@ -1,6 +1,7 @@
 # https://rocket.chat/docs/developer-guides/rest-api/
 
 from datetime import datetime as dt
+from datetime import timedelta as td
 from pprint import pprint
 import secrets
 
@@ -16,10 +17,22 @@ def _is_correct_image(url):
 
 
 def _is_benoipocalypse(date, benoipocalypse_start): #la Benoipocalypse dure toute la journée suivant l'annonce, de minuit à minuit
+    for set in benoipocalypse_start:
+        msg = set["fullstring"]  # check something on msg, like the date ?
+        dateStart = set["date"].date() + td(day=1)
+        if dateStart == date.date():
+            return True
+
     return False
 
 
 def _is_troll(date, troll_start):
+    for set in troll_start:
+        msg = set["fullstring"]  # check something on msg, like the date ?
+        dateStart = set["date"]
+        if (dateStart.date() == date.date()) and (dateStart.format("%H%i") == date.format("%H%i")):  # same day, hour, min
+            return True
+
     return False
 
 
