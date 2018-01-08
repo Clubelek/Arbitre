@@ -121,16 +121,24 @@ class RocketComm:
         msgs = self._retrieve_msgs(settings, since)
         for msg in msgs:
             url = ""
+            reac = None
+
             if (("attachments" in msg)
                     and (msg["attachments"] is not None)
                     and (len(msg["attachments"]) > 0)
                     and ("image_url" in msg["attachments"][0])):
                 url = msg["attachments"][0]["image_url"]
+
+            if (("reactions" in msg)
+                    and (msg["reactions"] is not None)
+                    and (len(msg["reactions"]) > 0)):
+                reac = msg['reactions']
+
             date = dt.strptime(msg["ts"], settings["parseDate"])
             rmsg = msg['msg']
-            user = msg['user']
+            user = msg['u']['username']
 
-            rmsgs.append(dict(user=user, date=date, msg=rmsg, url=url))
+            rmsgs.append(dict(user=user, date=date, msg=rmsg, url=url, reactions=reac))
 
         return rmsgs
 

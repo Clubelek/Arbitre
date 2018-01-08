@@ -11,7 +11,7 @@ settings = ids.settings
 rc = RocketComm(config)
 rc.login()
 
-pprint(rc.check_special_string(settings, dt.strptime('2018-01-01', "%Y-%m-%d"), "test", "telec"))
+pprint(rc.get_raw_msgs(settings, dt.strptime('2018-01-01', "%Y-%m-%d")))
 
 rc.logout()
 
